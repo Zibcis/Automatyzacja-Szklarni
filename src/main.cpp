@@ -245,6 +245,7 @@ if(xWieczornePodlewanie)   //Porannego podlewanie logika
       else{
       xPump = 0;}
 
+      
 if (analogRead(A0)*(4.70/1024.0)*100 > 35){
   xFan = 1;
 }else{

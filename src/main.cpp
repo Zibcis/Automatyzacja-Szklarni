@@ -12,6 +12,7 @@ void encoderWork();
 void setExpanderOutput();
 int Counter, aState, aLastState, ctu, H1, M1, MD1, H2, M2, MD2, Selector, lastCounter, MenuCounter, LCDTimer;
 bool xPump, xPorannePodlewanie, xWieczornePodlewanie, xFan, xLCDOneTime;
+float duration, distance;
 
 LiquidCrystal_I2C lcd(0x27,16,2);
 virtuabotixRTC myRTC(7,6,5);
@@ -26,6 +27,8 @@ void setup() {
   pinMode(EncoderOutputB, INPUT);
   pinMode(3,INPUT_PULLUP);
   pinMode(A1,OUTPUT);
+  pinMode(9,OUTPUT);
+  pinMode(10,INPUT);
   analogWrite(A1,255);
   expander1.pinMode(0,OUTPUT);
   expander1.pinMode(1,OUTPUT);
@@ -118,11 +121,11 @@ if (ctu >= 100){
       lcd.setCursor(1,1);
       lcd.print(dht.getHumidity());
       lcd.print("% ");
-      lcd.print(analogRead(A0)*(4.70/1024.0)*100);
-      lcd.setCursor(10,1);
-      lcd.print(myRTC.dayofmonth);
-      lcd.print(".");
-      lcd.print(myRTC.month);
+      lcd.print(distance);
+      lcd.setCursor(11,1);
+      //lcd.print(myRTC.dayofmonth);
+      //lcd.print(".");
+      //lcd.print(myRTC.month);
     break;
   }
   lcd.setCursor(15,1);
@@ -245,9 +248,10 @@ if(xWieczornePodlewanie)   //Porannego podlewanie logika
       else{
       xPump = 0;}
 
-if (analogRead(A0)*(4.70/1024.0)*100 > 35){
+if ((analogRead(A0)*(4.70/1024.0)*100) > 40.0){
   xFan = 1;
-}else{
+}
+if((analogRead(A0)*(4.70/1024.0)*100) < 35.0){
   xFan = 0;
 }
 
@@ -272,6 +276,13 @@ xLCDOneTime = 1;
 //Uruchomienie Urządzeń wykonawnczych
 expander1.digitalWrite(1, xPump);
 expander1.digitalWrite(0, xFan);
+//digitalWrite(9,LOW);
+//delayMicroseconds(2);
+//digitalWrite(9,HIGH);
+//delayMicroseconds(10);
+//digitalWrite(9,LOW);
+//duration = pulseIn(8, HIGH);
+//distance = (duration*0.0343)/2; 
 delay(20);
 ctu++;
 if (LCDTimer < 3500)

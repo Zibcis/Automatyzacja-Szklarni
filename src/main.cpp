@@ -6,13 +6,17 @@
 
 #define EncoderOutputA 2
 #define EncoderOutputB 4
+#define WyskoscZbiornika 90.0
+#define PolePodZbiornika 23.75  //dm^2
 
 // put function declarations here:
 void encoderWork();
 void setExpanderOutput();
+float waterCalculation(float);
+void edgeCheck(bool *,bool *);
 int Counter, aState, aLastState, ctu, H1, M1, MD1, H2, M2, MD2, Selector, lastCounter, MenuCounter, LCDTimer;
-bool xPump, xPorannePodlewanie, xWieczornePodlewanie, xFan, xLCDOneTime;
-float duration, distance;
+bool xPump, xPorannePodlewanie, xWieczornePodlewanie, xFan, xLCDOneTime, xPumpState, xPumpRising, xPumpFalling;
+float duration, distance, levelStart,levelFinish;
 
 LiquidCrystal_I2C lcd(0x27,16,2);
 virtuabotixRTC myRTC(7,6,5);
@@ -108,6 +112,16 @@ if (ctu >= 100){
       }
       lcd.setCursor(13,1);
       lcd.print(Selector);
+    break;
+    case(8):
+      lcd.setCursor(0,0);
+      lcd.print("Dost Woda: ");
+      lcd.print(waterCalculation(distance));
+      lcd.print("l");
+      lcd.setCursor(0,1);
+      lcd.print("Ost Zuż: ");
+      lcd.print(waterCalculation(levelStart)-waterCalculation(levelFinish));
+      lcd.print(" l");
     break;
 
     default:                  //Basic screen
@@ -234,26 +248,22 @@ if (Counter == 6)         //Ustawianie wieczornego podlewania
   }
 }
 
-if(xPorannePodlewanie)   //Porannego podlewanie logika
+if(xPorannePodlewanie){  //Porannego podlewanie logika
   if(myRTC.hours == H1)
     if(myRTC.minutes > M1 && myRTC.minutes < M1 + MD1){
       xPump = 1;}
       else{
       xPump = 0;}
-
-if(xWieczornePodlewanie)   //Porannego podlewanie logika
+      }
+if(xWieczornePodlewanie){  //Porannego podlewanie logika
   if(myRTC.hours == H2)
     if(myRTC.minutes > M2 && myRTC.minutes < M1 + MD2){
       xPump = 1;}
       else{
       xPump = 0;}
-
-<<<<<<< HEAD
+      }
       
-if (analogRead(A0)*(4.70/1024.0)*100 > 35){
-=======
 if ((analogRead(A0)*(4.70/1024.0)*100) > 40.0){
->>>>>>> 5252dbccc7c7f93026c673c6b3cd92c9b9a7de28
   xFan = 1;
 }
 if((analogRead(A0)*(4.70/1024.0)*100) < 35.0){
@@ -277,26 +287,37 @@ xLCDOneTime = 1;
   
 }
 
+if (xPumpRising)
+{
+  levelStart = distance;
+  xPumpRising = 0;
+}
+
+if (xPumpFalling)
+{
+  levelFinish = distance;
+  xPumpFalling = 0;
+}
+
 
 //Uruchomienie Urządzeń wykonawnczych
 expander1.digitalWrite(1, xPump);
 expander1.digitalWrite(0, xFan);
-//digitalWrite(9,LOW);
-//delayMicroseconds(2);
-//digitalWrite(9,HIGH);
-//delayMicroseconds(10);
-//digitalWrite(9,LOW);
-//duration = pulseIn(8, HIGH);
-//distance = (duration*0.0343)/2; 
+digitalWrite(9,LOW);
+delayMicroseconds(2);
+digitalWrite(9,HIGH);
+delayMicroseconds(10);
+digitalWrite(9,LOW);
+duration = pulseIn(8, HIGH);
+distance = (duration*0.0343)/2; 
 delay(20);
 ctu++;
 if (LCDTimer < 3500)
 {
  LCDTimer++;
 }
-
-
 lastCounter = MenuCounter;
+edgeCheck(&xPumpRising, &xPumpFalling);
 }
 
     // put your main code here, to run repeatedly:
@@ -345,9 +366,9 @@ void encoderWork(){
     }
   }
   if (Counter <0) {
-    Counter = 6;
+    Counter = 8;
   }
-  if (Counter > 6 ){
+  if (Counter > 8 ){
     Counter = 0;
   }
   aLastState = aState;
@@ -375,6 +396,23 @@ switch(Counter){
 }
 
 }
+float waterCalculation(float waterlevel){
+  return ((WyskoscZbiornika - waterlevel)/10.0)*PolePodZbiornika;
+
+}
+void edgeCheck(bool *rising, bool *falling ){
+  if (xPump && !xPumpState)
+  {
+    *falling = 1;
+  }
+  if(!xPump && xPumpState ){
+    *rising = 1 ;
+  }
+  
+  xPumpState = xPump; 
+
+}
+
 /*
 #include <Wire.h>
 

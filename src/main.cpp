@@ -1,8 +1,10 @@
+
 #include <Arduino.h>
 #include <LiquidCrystal_I2C.h>
 #include <virtuabotixRTC.h>
 #include <DHT.h>
 #include <PCF8574.h>
+
 
 #define EncoderOutputA 2
 #define EncoderOutputB 4
@@ -20,7 +22,7 @@ float duration, distance, levelStart,levelFinish;
 
 LiquidCrystal_I2C lcd(0x27,16,2);
 virtuabotixRTC myRTC(7,6,5);
-PCF8574 expander1(0x20);
+PCF8574 expander1(0x21);
 DHT dht;
 
 void setup() {
@@ -303,6 +305,7 @@ if (xPumpFalling)
 //Uruchomienie Urządzeń wykonawnczych
 expander1.digitalWrite(1, xPump);
 expander1.digitalWrite(0, xFan);
+
 digitalWrite(9,LOW);
 delayMicroseconds(2);
 digitalWrite(9,HIGH);
@@ -310,6 +313,8 @@ delayMicroseconds(10);
 digitalWrite(9,LOW);
 duration = pulseIn(8, HIGH);
 distance = (duration*0.0343)/2; 
+
+
 delay(20);
 ctu++;
 if (LCDTimer < 3500)
@@ -322,35 +327,6 @@ edgeCheck(&xPumpRising, &xPumpFalling);
 
     // put your main code here, to run repeatedly:
     
-  //Here after clearing the LCD we take the time from the module and print it on the screen with usual LCD functions
- /*
- lcd.setCursor(0,0);
- lcd.print(analogRead(A0)*(4.70/1024.0)*100);
- lcd.print(" ");
- lcd.print(dht.getHumidity());
- lcd.print(" ");
- lcd.print(Counter);
- lcd.print(" ");
- lcd.print(xPump);
- lcd.setCursor(0,1);
- lcd.print(myRTC.hours);
- lcd.print(":");
- lcd.print(myRTC.minutes);
- lcd.print(":");
- lcd.print(myRTC.seconds);
- lcd.print(" ");
- lcd.print(dht.getTemperature());
- ctu=0;
-    }
- expander1.digitalWrite(0,xPump);
- analogWrite(A1,255);
- delay(5);
- analogWrite(A1,0);
-delay(15);
-ctu++;
-
-}
-*/
 
 void encoderWork(){
   aState = digitalRead(EncoderOutputA);
@@ -412,7 +388,6 @@ void edgeCheck(bool *rising, bool *falling ){
   xPumpState = xPump; 
 
 }
-
 /*
 #include <Wire.h>
 

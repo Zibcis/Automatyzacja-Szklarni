@@ -305,7 +305,7 @@ if (xPumpFalling)
 //Uruchomienie Urządzeń wykonawnczych
 expander1.digitalWrite(1, xPump);
 expander1.digitalWrite(0, xFan);
-
+/*
 digitalWrite(9,LOW);
 delayMicroseconds(2);
 digitalWrite(9,HIGH);
@@ -314,6 +314,7 @@ digitalWrite(9,LOW);
 duration = pulseIn(8, HIGH);
 distance = (duration*0.0343)/2; 
 
+*/
 
 delay(20);
 ctu++;
@@ -388,15 +389,18 @@ void edgeCheck(bool *rising, bool *falling ){
   xPumpState = xPump; 
 
 }
-/*
+
+ /*
 #include <Wire.h>
+#include <Arduino.h>
+
 
 int lu;
 byte error, address;
 
 void setup() {
   Wire.begin();
-  Serial.begin(115200);
+  Serial.begin(9600);
   while (!Serial); // Czeka na otwarcie monitora portu szeregowego
   Serial.println("\nI2C Scanner startuje...");
  

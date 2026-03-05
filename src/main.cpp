@@ -137,7 +137,7 @@ if (ctu >= 100){
       lcd.setCursor(1,1);
       lcd.print(dht.getHumidity());
       lcd.print("% ");
-      lcd.print(distance);
+      lcd.print((analogRead(A0)*(4.70/1024.0)*100));
       lcd.setCursor(11,1);
       //lcd.print(myRTC.dayofmonth);
       //lcd.print(".");
